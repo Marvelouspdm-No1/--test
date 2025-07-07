@@ -494,9 +494,11 @@ function generateReportImage(name, form, score, unanswered) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     
-    // Set canvas size (increase height to accommodate all wrong answers)
+    // Calculate canvas height based on number of wrong answers
+    const baseHeight = 800;
+    const errorHeight = wrongAnswers.length * 30 + 100; // 30px per error + some padding
     canvas.width = 800;
-    canvas.height = Math.max(1000, 800 + (wrongAnswers.length * 30));
+    canvas.height = Math.max(baseHeight, baseHeight + errorHeight);
     
     // Background gradient
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -553,7 +555,7 @@ function generateReportImage(name, form, score, unanswered) {
     ctx.font = 'bold 20px Arial';
     ctx.fillText(`${percentage}%`, centerX, centerY + 20);
     
-    // Detailed scores (only show total score)
+    // Detailed scores (only total score)
     ctx.fillStyle = '#333';
     ctx.font = '20px Arial';
     ctx.textAlign = 'left';
@@ -567,42 +569,43 @@ function generateReportImage(name, form, score, unanswered) {
     // Performance Analysis
     ctx.fillStyle = '#333';
     ctx.font = 'bold 24px Arial';
-    ctx.fillText('表现分析 Performance Analysis', 50, 450);
+    let currentY = unanswered > 0 ? 450 : 420;
+    ctx.fillText('表现分析 Performance Analysis', 50, currentY);
     
     ctx.font = '18px Arial';
     const feedback = getFeedback(score);
     const words = feedback.split(' ');
     let line = '';
-    let y = 480;
+    currentY += 30;
     
     for (let n = 0; n < words.length; n++) {
         const testLine = line + words[n] + ' ';
         const metrics = ctx.measureText(testLine);
         const testWidth = metrics.width;
         if (testWidth > 700 && n > 0) {
-            ctx.fillText(line, 50, y);
+            ctx.fillText(line, 50, currentY);
             line = words[n] + ' ';
-            y += 25;
+            currentY += 25;
         } else {
             line = testLine;
         }
     }
-    ctx.fillText(line, 50, y);
+    ctx.fillText(line, 50, currentY);
     
     // Wrong Answers Section (show ALL wrong answers)
     if (wrongAnswers.length > 0) {
-        y += 50;
+        currentY += 50;
         ctx.fillStyle = '#F44336';
         ctx.font = 'bold 20px Arial';
-        ctx.fillText(`错题分析 Wrong Answers (${wrongAnswers.length} 题)`, 50, y);
+        ctx.fillText(`错题分析 Wrong Answers (${wrongAnswers.length} 题)`, 50, currentY);
         
         ctx.fillStyle = '#333';
         ctx.font = '16px Arial';
         
-        // Show ALL wrong answers instead of limiting to 5
+        // Show ALL wrong answers
         wrongAnswers.forEach((error, index) => {
-            y += 30;
-            ctx.fillText(`${index + 1}. 第${error.number}题: ${error.selected} → ${error.correct}`, 50, y);
+            currentY += 30;
+            ctx.fillText(`${index + 1}. 第${error.number}题: ${error.selected} → ${error.correct}`, 50, currentY);
         });
     }
     
@@ -630,7 +633,6 @@ function generateReportImage(name, form, score, unanswered) {
     
     // Copy canvas content to displayed canvas
     const displayCanvas = document.getElementById('generatedCanvas');
-    displayCanvas.width = canvas.width;
     displayCanvas.height = canvas.height;
     const displayCtx = displayCanvas.getContext('2d');
     displayCtx.drawImage(canvas, 0, 0);
@@ -858,9 +860,11 @@ function generateHistoryReportImage(attemptIndex) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     
-    // Set canvas size (increase height to accommodate all wrong answers)
+    // Calculate canvas height based on number of wrong answers
+    const baseHeight = 800;
+    const errorHeight = wrongAnswers.length * 30 + 100; // 30px per error + some padding
     canvas.width = 800;
-    canvas.height = Math.max(1000, 800 + (wrongAnswers.length * 30));
+    canvas.height = Math.max(baseHeight, baseHeight + errorHeight);
     
     // Background gradient
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -917,7 +921,7 @@ function generateHistoryReportImage(attemptIndex) {
     ctx.font = 'bold 20px Arial';
     ctx.fillText(`${percentage}%`, centerX, centerY + 20);
     
-    // Detailed scores (only show total score)
+    // Detailed scores (only total score)
     ctx.fillStyle = '#333';
     ctx.font = '20px Arial';
     ctx.textAlign = 'left';
@@ -931,42 +935,43 @@ function generateHistoryReportImage(attemptIndex) {
     // Performance Analysis
     ctx.fillStyle = '#333';
     ctx.font = 'bold 24px Arial';
-    ctx.fillText('表现分析 Performance Analysis', 50, 450);
+    let currentY = unanswered > 0 ? 450 : 420;
+    ctx.fillText('表现分析 Performance Analysis', 50, currentY);
     
     ctx.font = '18px Arial';
     const feedback = getFeedback(attempt.score);
     const words = feedback.split(' ');
     let line = '';
-    let y = 480;
+    currentY += 30;
     
     for (let n = 0; n < words.length; n++) {
         const testLine = line + words[n] + ' ';
         const metrics = ctx.measureText(testLine);
         const testWidth = metrics.width;
         if (testWidth > 700 && n > 0) {
-            ctx.fillText(line, 50, y);
+            ctx.fillText(line, 50, currentY);
             line = words[n] + ' ';
-            y += 25;
+            currentY += 25;
         } else {
             line = testLine;
         }
     }
-    ctx.fillText(line, 50, y);
+    ctx.fillText(line, 50, currentY);
     
     // Wrong Answers Section (show ALL wrong answers)
     if (wrongAnswers.length > 0) {
-        y += 50;
+        currentY += 50;
         ctx.fillStyle = '#F44336';
         ctx.font = 'bold 20px Arial';
-        ctx.fillText(`错题分析 Wrong Answers (${wrongAnswers.length} 题)`, 50, y);
+        ctx.fillText(`错题分析 Wrong Answers (${wrongAnswers.length} 题)`, 50, currentY);
         
         ctx.fillStyle = '#333';
         ctx.font = '16px Arial';
         
-        // Show ALL wrong answers instead of limiting to 5
+        // Show ALL wrong answers
         wrongAnswers.forEach((error, index) => {
-            y += 30;
-            ctx.fillText(`${index + 1}. 第${error.number}题: ${error.selected} → ${error.correct}`, 50, y);
+            currentY += 30;
+            ctx.fillText(`${index + 1}. 第${error.number}题: ${error.selected} → ${error.correct}`, 50, currentY);
         });
     }
     
